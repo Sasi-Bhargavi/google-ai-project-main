@@ -1,1 +1,165 @@
+For Epic 4: Local Deployment & End-to-End Functional Testing, we establish a reliable, repeatable procedure to host and validate your complete multi-model application locally. This process sets up the local runtime environment, configures automated environment checks, and outlines a structured approach to functional verification testing.
 
+🛠️ 1. Preparing the Deployment Runtime Environment
+Before executing your server instances, you need a clean environment mapping framework. This script automates dependency resolution, environment variable checking, and runtime setup.
+
+Create a setup deployment script named run_local.py in your project's root folder:
+
+Python
+# run_local.py
+import os
+import sys
+import subprocess
+import shutil
+
+def verify_and_deploy():
+    print("🚀 [EduGenie Deployment Engine] Initializing environment checks...")
+
+    # 1. Check Python Version (Requires 3.10+)
+    if sys.version_info < (3, 10):
+        sys.exit("❌ Error: EduGenie requires Python 3.10 or higher due to type hint dependencies.")
+
+    # 2. Check for .env file configuration
+    if not os.path.exists(".env"):
+        print("⚠️ Warning: .env file not found. Creating a baseline configuration template...")
+        with open(".env", "w") as f:
+            f.write('GEMINI_API_KEY="YOUR_ACTUAL_API_KEY_HERE"\nENVIRONMENT="development"\n')
+        print("❌ Critical: Please update the newly generated '.env' file with your active Gemini API Key.")
+        sys.exit(1)
+
+    # 3. Verify directory architecture integrity
+    required_dirs = ["static/css", "templates", "core"]
+    for directory in required_dirs:
+        if not os.path.exists(directory):
+            print(f"📁 Structuring missing runtime asset directory layout: {directory}")
+            os.makedirs(directory, exist_ok=True)
+
+    # 4. Auto-install or upgrade dependencies
+    print("📦 Synchronizing project execution dependencies from requirements.txt...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    except subprocess.CalledProcessError:
+        sys.exit("❌ Error: Dependency resolution failed during pip synchronization.")
+
+    # 5. Boot local production server cluster via Uvicorn
+    print("\n⚡ Booting EduGenie Local App Engine Hub via Uvicorn...")
+    print("🔗 Point your browser instance directly to: http://127.0.0.1:8000\n")
+    
+    try:
+        # Runs uvicorn directly within the active terminal process loop
+        subprocess.run([sys.executable, "-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000", "--reload"])
+    except KeyboardInterrupt:
+        print("\n🛑 [EduGenie Deployment Engine] Local server instance cluster successfully terminated by user request.")
+
+if __name__ == "__main__":
+    verify_and_deploy()
+⚡ 2. Launching the Local Deployment Node
+To execute your workspace deployment framework, run this command in your terminal:
+
+Bash
+python run_local.py
+The console will verify your package dependencies, create any missing folders, and launch the Uvicorn application loop:
+
+Plaintext
+🚀 [EduGenie Deployment Engine] Initializing environment checks...
+📦 Synchronizing project execution dependencies from requirements.txt...
+⚡ Booting EduGenie Local App Engine Hub via Uvicorn...
+🔗 Point your browser instance directly to: http://127.0.0.1:8000
+
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12450] using StatReload
+INFO:     Started server process [12455]
+🧪 3. Automated Functional Verification Test Suite
+To run tests across your live deployment without manual browser clicking, create a functional integration testing script named test_integration.py in your root directory. This script verifies all core endpoints against your live local deployment server.
+
+Note: Ensure your server is running via python run_local.py in a separate terminal before executing the test suite below.
+
+Python
+# test_integration.py
+import requests
+import json
+import os
+
+BASE_URL = "http://127.0.0.1:8000"
+
+def execute_functional_test_suite():
+    print("🧪 [EduGenie QA Automation] Starting functional integration sweep...\n")
+    tests_passed = 0
+    total_tests = 4
+
+    # --- TEST 1: Infrastructure Smoke Test ---
+    try:
+        res = requests.get(f"{BASE_URL}/health")
+        if res.status_code == 200 and res.json().get("status") == "online":
+            print("✅ [PASS] Test 1/4: System Health Core Check is operational.")
+            tests_passed += 1
+        else:
+            print("❌ [FAIL] Test 1/4: System Health Core Check failed or returned bad data.")
+    except Exception as e:
+         print(f"❌ [FAIL] Test 1/4: Could not connect to deployment server: {e}")
+
+    # --- TEST 2: Conversational Tutor API (Cloud Gemini Link) ---
+    chat_payload = {
+        "message": "Explain what a variable is using a simple metaphor.",
+        "history": []
+    }
+    try:
+        res = requests.post(f"{BASE_URL}/api/v2/chat", json=chat_payload)
+        if res.status_code == 200 and "response" in res.json():
+            print("✅ [PASS] Test 2/4: Gemini Cloud Conversational Router successfully returned payload.")
+            tests_passed += 1
+        else:
+            print(f"❌ [FAIL] Test 2/4: Gemini Cloud Router failed with status code {res.status_code}")
+    except Exception as e:
+         print(f"❌ [FAIL] Test 2/4: Chat pipeline exception encountered: {e}")
+
+    # --- TEST 3: Practice Quiz Compiler API (Local LaMini Link) ---
+    quiz_payload = {
+        "topic": "Basic Fractions",
+        "num_questions": 3
+    }
+    try:
+        res = requests.post(f"{BASE_URL}/api/v2/quiz", json=quiz_payload)
+        if res.status_code == 200 and "quiz_raw" in res.json():
+            print("✅ [PASS] Test 3/4: Local LaMini Quiz Generation Inference engine is working.")
+            tests_passed += 1
+        else:
+            print(f"❌ [FAIL] Test 3/4: Local LaMini Quiz Generator failed with status code {res.status_code}")
+    except Exception as e:
+         print(f"❌ [FAIL] Test 3/4: Quiz pipeline exception encountered: {e}")
+
+    # --- TEST 4: Performance Remediation Tracker API (Local Telemetry) ---
+    remediation_payload = {
+        "score": 1,
+        "total_questions": 3,
+        "topic": "Basic Fractions"
+    }
+    try:
+        res = requests.post(f"{BASE_URL}/api/v2/recommendations", json=remediation_payload)
+        if res.status_code == 200 and "recommendations" in res.json():
+            print("✅ [PASS] Test 4/4: Analytics Performance Remediation Pipeline resolved correctly.")
+            tests_passed += 1
+        else:
+            print(f"❌ [FAIL] Test 4/4: Analytics Remediation pipeline failed with status code {res.status_code}")
+    except Exception as e:
+         print(f"❌ [FAIL] Test 4/4: Analytics pipeline exception encountered: {e}")
+
+    # --- EVALUATION SUMMARY ---
+    print("\n-------------------------------------------------------")
+    print(f"📊 SYSTEM ANALYSIS SUMMARY: {tests_passed}/{total_tests} Functional Pipelines Passed.")
+    print("-------------------------------------------------------")
+    
+    if tests_passed == total_tests:
+        print("🚀 Epic 4 Deployment Status: SUCCESSFUL. Ready for client access.")
+    else:
+        print("⚠️ Epic 4 Deployment Status: UNSTABLE. Inspect failing logs shown above.")
+
+if __name__ == "__main__":
+    # Add requests package check prior to execution running
+    try:
+        import requests
+    except ImportError:
+        import os
+        os.system("pip install requests")
+        import requests
+    execute_functional_test_suite()
