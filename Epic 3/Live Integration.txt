@@ -1,0 +1,44 @@
+Here is the setup to connect your layout elements, local pipelines, and the external Gemini service layer into an integrated runtime environment.
+
+🛠️ 1. Verification ChecklistBefore booting your integration environment, ensure your workspace architecture matches this structure exactly:Plaintextedugenie-backend/
+│
+├── core/
+│   ├── __init__.py
+│   ├── gemini_service.py       # Cloud AI connector
+│   └── lamini_service.py       # Local HF Model pipeline
+│
+├── static/
+│   └── css/
+│       └── style.css           # Global presentation styles
+│
+├── templates/
+│   ├── base.html               # Parent skeleton view
+│   ├── chat.html               # Q&A UI
+│   ├── summary.html            # File ingestion dashboard
+│   └── quiz.html               # Practice engine + telemetry interface
+│
+├── .env                        # Workspace API key registry
+└── main.py                     # Unified mounting & routing nexus
+
+
+🚀 2. Launching the Integrated EnvironmentRun the server instance from your terminal at the root directory level:Bashuvicorn main:app --reload --host 127.0.0.1 --port 8000
+What the parameters mean:main:app: Directs Uvicorn to open the app instance located inside main.py.--reload: Enforces cold-restarting hot updates automatically whenever source codes are adjusted.
+
+
+🔍 3. Validating the Operational EndpointsOnce your server log prints Uvicorn running on [http://127.0.0.1:8000](http://127.0.0.1:8000), open your web browser or terminal to perform live validation sweeps across your system layers:A. System Infrastructure Layer (Smoke Test)Open [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health) in your browser to confirm the core application routing system is responding.JSON{
+  "status": "online",
+  "message": "EduGenie Core Router is functioning properly."
+}
+B. User Interface Routing LayerNavigate through your main page routes to verify that Jinja2 is rendering and serving your templates correctly:[http://127.0.0.1:8000/](http://127.0.0.1:8000/) $\rightarrow$ Mounts chat.html (Conversational UI)[http://127.0.0.1:8000/summarizer](http://127.0.0.1:8000/summarizer) $\rightarrow$ Mounts summary.html (Document ingestion screen)[http://127.0.0.1:8000/quiz-engine](http://127.0.0.1:8000/quiz-engine) $\rightarrow$ Mounts quiz.html (Local assessment suite)
+
+
+🛰️ 4. End-to-End Live System Architecture DataflowThe diagram below outlines how user actions in the browser trigger background processes through your mounted backend controllers and model pipelines:Plaintext [ BROWSER INTERFACE LAYER ]
+      │
+      ├── (Sends prompt string via Fetch API) ──> /api/v2/chat ──────────> [ Gemini 1.5 Pro (Cloud) ]
+      │
+      ├── (Uploads multipart form .txt/.md) ───> /api/v2/summarize ─────> [ Gemini 1.5 Pro (Cloud) ]
+      │
+      ├── (Requests custom evaluation task) ───> /api/v2/quiz ──────────> [ LaMini-Flan-T5 (Local) ]
+      │
+      └── (Posts tracking score telemetry) ────> /api/v2/recommendations ─> [ LaMini-Flan-T5 (Local) ]
+💡 Troubleshooting Integration Failures404 Not Found for Assets: Ensure that app.mount("/static", ...) is placed above your HTML page route definitions in main.py. If it is declared underneath catch-all routes, FastAPI will attempt to match asset requests to page templates instead.500 Internal Server Error on Cloud Features: Confirm that your .env workspace registry file is present in the root folder and that your GEMINI_API_KEY is wrapped in valid quote strings.Browser CORS Blockades: If you attempt to serve your application from a domain alternate to your fetch targets, ensure allow_origins=["*"] is active inside your CORSMiddleware configuration blocks to prevent the browser from blocking network data transfers.

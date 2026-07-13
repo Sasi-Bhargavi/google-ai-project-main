@@ -1,0 +1,20 @@
+edugenie-project/
+│
+├── core/
+│   ├── __init__.py
+│   ├── gemini_service.py
+│   └── lamini_service.py
+│
+├── static/
+│   └── css/
+│       └── style.css           # Global custom stylesheet
+│
+├── templates/
+│   ├── base.html               # Shared master page framework
+│   ├── chat.html               # Q&A Assistant View
+│   ├── summary.html            # Notes Summarizer View
+│   └── quiz.html               # Quiz & Remediation View
+│
+├── .env
+├── main.py                     # Main server entry (Updated with mounting logic)
+└── requirements.txt
