@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>🧠 Concept Check Quiz Engine</h2>
+    <p>Generate targeted evaluations hosted entirely on your local machine using LaMini-Flan-T5.</p>
+    
+    <input type="text" id="topicInput" placeholder="Enter topic name (e.g., Photosynthesis)">
+    <button class="btn" onclick="generateQuiz()">Generate Quiz</button>
+    
+    <div id="quizContainer" style="margin-top: 2rem; display: none;">
+        <h3>📝 Your Custom Assessment</h3>
+        <div id="rawQuizBox" style="white-space: pre-line; background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+        
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem;">
+            <input type="text" id="scoreInput" placeholder="Enter your correct items count" style="width: 100px; margin: 0;">
+            <span>out of 3 questions</span>
+        </div>
+        <button class="btn" onclick="getRemediation()">Submit Score for Analysis</button>
+    </div>
+
+    <div id="remediationBox" style="margin-top: 2rem; display: none; background: #fff7ed; border: 1px solid #ffedd5; padding: 1rem; border-radius: 8px;">
+        <h3 style="color: #c2410c; margin-top: 0;">💡 Recommended Next Study Steps</h3>
+        <div id="remediationResult" style="white-space: pre-line;"></div>
+    </div>
+</div>
+
+<script>
+    async function generateQuiz() {
+        const topic = document.getElementById('topicInput').value.trim();
+        if(!topic) return alert("Please enter a subject name.");
+        
+        const box = document.getElementById('rawQuizBox');
+        box.innerText = "LaMini-Flan-T5 is compiling assessment parameters...";
+        document.getElementById('quizContainer').style.display = "block";
+        
+        const response = await fetch('/api/v2/quiz', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ topic: topic, num_questions: 3 })
+        });
+        
+        const data = await response.json();
+        box.innerText = data.quiz_raw;
+    }
+
+    async function getRemediation() {
+        const score = document.getElementById('scoreInput').value;
+        const topic = document.getElementById('topicInput').value.trim();
+        
+        if(score === '') return alert("Please specify your score.");
+        
+        const response = await fetch('/api/v2/recommendations', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ score: parseInt(score), total_questions: 3, topic: topic })
+        });
+        
+        const data = await response.json();
+        document.getElementById('remediationResult').innerText = data.recommendations;
+        document.getElementById('remediationBox').style.display = "block";
+    }
+</script>
+{% endblock %}

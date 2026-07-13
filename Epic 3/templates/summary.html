@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>📝 Notes Summarizer & Synthesis Guide</h2>
+    <p>Upload a flat .txt or .md lecture log file to build an optimization study template.</p>
+    
+    <input type="file" id="fileInput" accept=".txt,.md" style="margin-bottom: 1rem;"><br>
+    <button class="btn" onclick="uploadDocument()">Generate Guide</button>
+    
+    <div id="outputContainer" style="margin-top: 2rem; display: none;">
+        <h3>✨ Generated Study Guide</h3>
+        <div id="summaryResult" style="white-space: pre-line; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+    </div>
+</div>
+
+<script>
+    async function uploadDocument() {
+        const fileField = document.getElementById('fileInput');
+        if(!fileField.files[0]) return alert("Please select a valid document asset first.");
+        
+        const formData = new FormData();
+        formData.append("file", fileField.files[0]);
+        
+        const resultDiv = document.getElementById('summaryResult');
+        const container = document.getElementById('outputContainer');
+        
+        resultDiv.innerText = "Synthesizing document parameters via Gemini 1.5 Pro...";
+        container.style.display = "block";
+        
+        const response = await fetch('/api/v2/summarize', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        resultDiv.innerText = data.summary || data.detail;
+    }
+</script>
+{% endblock %}

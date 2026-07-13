@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduGenie Learning Workspace</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a class="navbar-brand" href="/">🎓 EduGenie AI</a>
+        <div class="navbar-nav">
+            <a href="/" class="{% if active_page == 'chat' %}active{% endif %}">🤖 Q&A Assistant</a>
+            <a href="/summarizer" class="{% if active_page == 'summary' %}active{% endif %}">📝 Summarizer</a>
+            <a href="/quiz-engine" class="{% if active_page == 'quiz' %}active{% endif %}">🧠 Quiz Engine</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
