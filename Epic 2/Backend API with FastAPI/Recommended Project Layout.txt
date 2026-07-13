@@ -1,0 +1,10 @@
+edugenie-backend/
+│
+├── core/
+│   ├── __init__.py
+│   ├── gemini_service.py       # Interacts with Gemini 1.5 Pro (Cloud SDK)
+│   └── lamini_service.py       # Interacts with LaMini-Flan-T5 (Local Hugging Face)
+│
+├── .env                        # Stores sensitive environment keys (GEMINI_API_KEY)
+├── main.py                     # Main FastAPI Entry Point & Routing Hub
+└── requirements.txt            # Project execution dependencies
