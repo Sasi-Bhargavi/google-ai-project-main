@@ -1,0 +1,17 @@
+1. Core Environment & Development Tools
+Python: The core programming language powering the application. You will need a standard installation (typically Python 3.10 or higher is recommended for modern AI libraries).
+
+Code Editor / IDE: A recommended development tool (such as VS Code or PyCharm) to handle application development, manual testing, and writing scripts.
+
+2. Frontend & App Framework
+Streamlit: Instead of a complex HTML/CSS and FastAPI split, this project uses Streamlit. It allows you to build the entire user interface and backend logic entirely in Python, making UI development significantly faster.
+
+ 3. AI & API Configurations
+Gemini API Key: You will need to obtain an API key from Google AI Studio.
+
+API Configuration: You must configure the key within your project environment (often using a .env file, Streamlit secrets manager secrets.toml, or system environment variables) so the application can securely authenticate and communicate with Google's Gemini models.
+
+4. Assets & Dependencies
+Required Python Libraries: A collection of dependency packages that must be installed via pip. This will typically include streamlit, google-generativeai, and any auxiliary data-handling libraries.
+
+Model Assets: The description notes that specific "model assets" are required. Depending on the exact project, this means you may need to download local configuration files, custom prompts, vector embeddings, or small auxiliary models to run alongside the Gemini API.
