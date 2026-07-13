@@ -1,0 +1,41 @@
+       +-----------------------------------+
+       |               USER                |
+       +-----------------------------------+
+       | PK | user_id                      |
+       |    | name                         |
+       |    | email                        |
+       |    | password                     |
+       |    | created_at                   |
+       +-----------------------------------+
+                         |
+                         | 1
+                         |
+                         |     Many
+                        -<-+-----------------------------------+
+                           |            USER_QUERY             |
+                           +-----------------------------------+
+                           | PK | query_id                     |
+                           | FK | user_id                      |
+                           |    | query_type                   |
+                           |    | query_text                   |
+                           |    | created_at                   |
+                           +-----------------------------------+
+                                 |          |          |          |
+         +-----------------------+          |          |          +-----------------------+
+         | 1                                | 1        | 1                                | 1
+         |                                  |          |                                  |
+         | 1                                | Many     | Many                             | Many
+         v                                  v          v                                  v
++-----------------------+       +-----------+---+  +---+-----------+       +--------------+--------+
+|      AI_RESPONSE      |       |     QUIZ      |  |    SUMMARY    |       |     LEARNING_PATH     |
++-----------------------+       +-----------+---+  +---+-----------+       +--------------+--------+
+| PK | response_id      |       | PK | quiz_id  |  | PK | summary_id|       | PK | path_id          |
+| FK | query_id         |       | FK | query_id |  | FK | query_id |       | FK | query_id         |
+|    | response_text    |       |    | q_text   |  |    | sum_text |       |    | topic            |
+|    | model_used       |       |    | option_a |  |    | created_at|      |    | difficulty_level |
+|    | created_at       |       |    | option_b |  +---------------+       |    | recommended_res  |
++-----------------------+       |    | option_c |                          |    | created_at       |
+                                |    | option_d |                          +-----------------------+
+                                |    | correct  |
+                                |    |created_at|
+                                +---------------+

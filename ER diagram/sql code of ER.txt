@@ -1,0 +1,63 @@
+-- Enable UUID extension for robust distributed keys if necessary, or use standard tracking
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_queries (
+    query_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    query_type VARCHAR(50) NOT NULL, -- QnA, Explanation, Quiz, Summary, Recommendation
+    query_text TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE ai_responses (
+    response_id SERIAL PRIMARY KEY,
+    query_id INT UNIQUE NOT NULL, -- Establishes the 1-to-1 relationship limit
+    response_text TEXT NOT NULL,
+    model_used VARCHAR(100) NOT NULL, -- Gemini 1.5 Pro or LaMini-Flan-T5
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_query_response FOREIGN KEY (query_id) REFERENCES user_queries(query_id) ON DELETE CASCADE
+);
+
+CREATE TABLE quizzes (
+    quiz_id SERIAL PRIMARY KEY,
+    query_id INT NOT NULL,
+    question_text TEXT NOT NULL,
+    option_a TEXT NOT NULL,
+    option_b TEXT NOT NULL,
+    option_c TEXT NOT NULL,
+    option_d TEXT NOT NULL,
+    correct_answer VARCHAR(1) NOT NULL, -- A, B, C, or D
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_query_quiz FOREIGN KEY (query_id) REFERENCES user_queries(query_id) ON DELETE CASCADE
+);
+
+CREATE TABLE summaries (
+    summary_id SERIAL PRIMARY KEY,
+    query_id INT NOT NULL,
+    summary_text TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_query_summary FOREIGN KEY (query_id) REFERENCES user_queries(query_id) ON DELETE CASCADE
+);
+
+CREATE TABLE learning_paths (
+    path_id SERIAL PRIMARY KEY,
+    query_id INT NOT NULL,
+    topic VARCHAR(255) NOT NULL,
+    difficulty_level VARCHAR(50) NOT NULL, -- Beginner, Intermediate, Advanced
+    recommended_resources TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_query_path FOREIGN KEY (query_id) REFERENCES user_queries(query_id) ON DELETE CASCADE
+);
+
+-- Indexing optimization configurations for high-volume retrieval execution
+CREATE INDEX idx_user_queries_user ON user_queries(user_id);
+CREATE INDEX idx_quizzes_query ON quizzes(query_id);
+CREATE INDEX idx_summaries_query ON summaries(query_id);
+CREATE INDEX idx_learning_paths_query ON learning_paths(query_id);
