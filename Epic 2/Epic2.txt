@@ -1,0 +1,73 @@
+1. Dual-Model Division of Labor
+Instead of relying solely on API calls, Epic 2 utilizes a smart hybrid compute architecture:
+
+Feature Module                   Assigned Model                       Architectural Reason
+----------------------------------------------------------------------------------------------------------------
+Q&A & Complex Concept          Gemini 1.5 Pro                     Requires massive reasoning depth, 
+Explanations                                                      broad knowledge bases, and complex 
+                                                                  analogical thinking.
+----------------------------------------------------------------------------------------------------------------
+Document                       Gemini 1.5 Pro                    Leverages Gemini's ultra-long 
+Summarization                                                    token context window to handle 
+                                                                 massive textbooks or lecture 
+                                                                 documents flawlessly
+------------------------------------------------------------------------------------------------------------------
+Quiz Generation                LaMini-Flan-T5                     A highly optimized, small text-to-text model. 
+                                                                  Perfect for local, cost-free generation of 
+                                                                  deterministic educational structures like 
+                                                                  True/False or basic Multiple Choice Questions.
+-------------------------------------------------------------------------------------------------------------------
+Smart Recommendations          LaMini-Flan-T5                     Can handle fast inference pipelines locally
+                                                                  to recommend study tasks or next steps based 
+                                                                  on student quiz scores.
+--------------------------------------------------------------------------------------------------------------------
+2. FastAPI Backend Endpoints (main.py)FastAPI acts as the traffic controller, exposing real-time asynchronous endpoints that your frontend UI calls to fetch data from the models.
+
+Python
+from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
+from typing import List
+
+app = FastAPI(title="EduGenie AI Core Backend")
+
+# Data Schemas
+class ChatPayload(BaseModel):
+    message: str
+    history: List[dict] = []
+
+class QuizRequest(BaseModel):
+    topic: str
+    num_questions: int = 3
+
+# --- ENDPOINTS ---
+
+@app.post("/api/v1/chat")
+async def chat_explanation(payload: ChatPayload):
+    """Invokes Gemini 1.5 Pro for deep multi-turn conversational tutoring."""
+    # Logic to call Google GenAI SDK using Gemini 1.5 Pro
+    return {"response": "Processed conversational response from Gemini Pro"}
+
+@app.post("/api/v1/summarize")
+async def summarize_document(file: UploadFile = File(...)):
+    """Accepts document streams and uses Gemini 1.5 Pro to synthesize data."""
+    # Logic to parse file and pass text arrays to Gemini 1.5 Pro
+    return {"summary": "Generated academic study outline"}
+
+@app.post("/api/v1/quiz")
+async def generate_quiz_local(request: QuizRequest):
+    """Invokes your locally running LaMini-Flan-T5 pipeline to construct tests."""
+    # Logic to query local Transformers pipeline using LaMini
+    return {"quiz": [{"question": "...", "options": [], "answer": ""}]}
+
+@app.post("/api/v1/recommendations")
+async def fetch_recommendations(score: int, total: int, topic: str):
+    """Uses LaMini-Flan-T5 to output immediate remediation guidance based on metrics."""
+    return {"recommendations": ["Review chapter 3", "Attempt foundational quiz again"]}
+
+
+3. Updated Folder Architecture ImpactTo support Epic 2's dual-model backend setup, your core/ folder expands to split external API calls from your local model engine setups:Plaintextcore/
+│
+├── __init__.py
+├── gemini_service.py       # Handles API connections exclusively to Gemini 1.5 Pro
+└── lamini_service.py       # Loads LaMini-Flan-T5 locally using Hugging Face transformers
+Technical Note on LaMini-Flan-T5Because LaMini-Flan-T5 runs locally on your development machine, your requirements.txt file will need to expand beyond your previous installation guidelines to include hardware acceleration dependencies:
